@@ -21,17 +21,31 @@ window.addEventListener('load', () => {
 
 // animation timeline
 const animationTimeline = () => {
-    // split chars that needs to be animated individually
     const textBoxChars = document.getElementsByClassName("hbd-chatbox")[0];
     const hbd = document.getElementsByClassName("wish-hbd")[0];
 
-    textBoxChars.innerHTML = `<span>${textBoxChars.innerHTML
-        .split("")
-        .join("</span><span>")}</span>`;
+    const splitTextWithBr = (html) => {
+        const result = [];
+        let i = 0;
+        while (i < html.length) {
+            if (html.substring(i, i + 4) === '<br>') {  // phát hiện thẻ <br>
+                result.push('<br>');                    // giữ nguyên thẻ <br>
+                i += 4;                                 // nhảy qua 4 ký tự <br>
+            } else {
+                result.push(html[i]);                   // ký tự bình thường thì tách ra
+                i++;
+            }
+        }
+        return result;
+    };
 
-    hbd.innerHTML = `<span>${hbd.innerHTML
-        .split("")
-        .join("</span><span>")}</span>`;
+    const chars = splitTextWithBr(textBoxChars.innerHTML);  // Lấy ra mảng ký tự hoặc thẻ <br>
+
+    textBoxChars.innerHTML = chars
+        .map(char => char === '<br>' ? '<br>' : `<span>${char}</span>`) // với <br> giữ nguyên, còn ký tự thì bọc span
+        .join('');
+
+    hbd.innerHTML = `<span>${hbd.innerHTML.split("").join("</span><span>")}</span>`;
 
     const ideaTextTrans = {
         opacity: 0,
