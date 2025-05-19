@@ -21,31 +21,36 @@ window.addEventListener('load', () => {
 
 // animation timeline
 const animationTimeline = () => {
-    const textBoxChars = document.getElementsByClassName("hbd-chatbox")[0];
-    const hbd = document.getElementsByClassName("wish-hbd")[0];
+    const textBoxChars = document.querySelector(".hbd-chatbox");
+    const hbd = document.querySelector(".wish-hbd");
 
-    const splitTextWithBr = (html) => {
-        const result = [];
-        let i = 0;
-        while (i < html.length) {
-            if (html.substring(i, i + 4) === '<br>') {  // phát hiện thẻ <br>
-                result.push('<br>');                    // giữ nguyên thẻ <br>
-                i += 4;                                 // nhảy qua 4 ký tự <br>
-            } else {
-                result.push(html[i]);                   // ký tự bình thường thì tách ra
-                i++;
-            }
+    const rawText = textBoxChars.textContent.trim(); // lấy nội dung thuần, bỏ khoảng trắng đầu cuối
+    const chars = [];
+
+    for (let i = 0; i < rawText.length; i++) {
+        const char = rawText[i];
+    
+        // Nếu là khoảng trắng, giữ nguyên (KHÔNG xài &nbsp;)
+        if (char === ' ') {
+            chars.push(' ');
         }
-        return result;
-    };
+        // Nếu là dấu ㅤ xuống dòng: chèn <br> nếu sau là dấu cách hoặc hết câu
+        else if (char === 'ㅤ' && (i === rawText.length - 1 || rawText[i + 1] === ' ')) {
+            chars.push(`<span>${char}</span><br>`);
+        }
+        // Các ký tự còn lại: giữ nguyên style đánh máy
+        else {
+            chars.push(`<span>${char}</span>`);
+        }
+    }
+    
 
-    const chars = splitTextWithBr(textBoxChars.innerHTML);  // Lấy ra mảng ký tự hoặc thẻ <br>
+    textBoxChars.innerHTML = chars.join('');
 
-    textBoxChars.innerHTML = chars
-        .map(char => char === '<br>' ? '<br>' : `<span>${char}</span>`) // với <br> giữ nguyên, còn ký tự thì bọc span
-        .join('');
+    // Xử lý wish-hbd bình thường
+    hbd.innerHTML = `<span>${hbd.textContent.split("").join("</span><span>")}</span>`;
 
-    hbd.innerHTML = `<span>${hbd.innerHTML.split("").join("</span><span>")}</span>`;
+
 
     const ideaTextTrans = {
         opacity: 0,
@@ -113,12 +118,11 @@ const animationTimeline = () => {
         1.5, {
             visibility: "visible",
         },
-        0.05
+        0.07 
     )
     .to(".fake-btn", 0.1, {
-        backgroundColor: "rgb(127, 206, 248)",
-    },
-    "+=4")
+        backgroundColor: "rgb(127, 206, 248)", 
+    },"+=7")
     .to(
         ".four",
         0.5, {
